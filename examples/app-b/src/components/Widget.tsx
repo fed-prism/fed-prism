@@ -1,0 +1,43 @@
+/**
+ * app-b/Widget — async remote component consumed by shell on demand.
+ * Uses lodash@4.17.20 — intentionally different patch from app-a (4.17.21).
+ */
+import React from 'react'
+import chunk from 'lodash/chunk'
+
+const ITEMS = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta']
+
+export default function Widget() {
+  const rows = chunk(ITEMS, 3)
+  return (
+    <div
+      style={{
+        padding: 20,
+        background: '#0f172a',
+        color: '#e2e8f0',
+        borderRadius: 10,
+        border: '1px solid #334155',
+        fontFamily: 'monospace',
+        fontSize: 13,
+      }}
+    >
+      <div style={{ marginBottom: 12, color: '#06b6d4', fontWeight: 600 }}>
+        Widget ↗ app-b (Webpack 5 · lodash 4.17.20)
+      </div>
+      <div>
+        {rows.map((row, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+            {row.map((item) => (
+              <span
+                key={item}
+                style={{ background: '#1e293b', padding: '4px 10px', borderRadius: 4 }}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
