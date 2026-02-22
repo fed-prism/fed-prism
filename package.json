@@ -17,7 +17,7 @@
     "build:examples": "turbo run build --filter=./examples/*",
     "dev": "turbo run dev --filter=./packages/*",
     "dev:examples": "turbo run dev --filter=./examples/*",
-    "dev:all": "concurrently --names \"server,ui,app-c,app-b,app-a,shell\" --prefix-colors \"blue.bold,cyan.bold,green.bold,yellow.bold,red.bold,magenta.bold\" --kill-others \"node packages/cli/dist/index.js start --no-open\" \"pnpm --filter @fed-prism/ui dev\" \"pnpm --filter @fed-prism-examples/app-c dev\" \"pnpm --filter @fed-prism-examples/app-b dev\" \"pnpm --filter @fed-prism-examples/app-a dev\" \"pnpm --filter @fed-prism-examples/shell dev\"",
+    "dev:all": "node scripts/dev.mjs",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck --filter=./packages/*",
     "test": "turbo run test",

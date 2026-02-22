@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { FederationAggregate, CorrelatedView, CorrelatedApp } from '@fed-prism/core'
 
 interface DashboardProps {
@@ -32,6 +33,93 @@ function AppRow({ app }: { app: CorrelatedApp }) {
     </tr>
   )
 }
+
+// ─── Empty state with tabbed build-tool examples ─────────────────────────────
+
+const TOOLS = ['Rsbuild', 'Webpack 5', 'Rspack'] as const
+type Tool = (typeof TOOLS)[number]
+
+const ENTRY_FILE = `// src/fedPrismPluginEntry.ts
+import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
+export default fedPrismPlugin()`
+
+const EXAMPLES: Record<Tool, string> = {
+  'Rsbuild': `// rsbuild.config.ts
+import { pluginModuleFederation } from '@module-federation/rsbuild-plugin'
+
+export default {
+  plugins: [
+    pluginModuleFederation({
+      name: 'myApp',
+      runtimePlugins: [require.resolve('./src/fedPrismPluginEntry.ts')],
+      // ...rest of your config
+    }),
+  ],
+}`,
+
+  'Webpack 5': `// webpack.config.js
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'myApp',
+      runtimePlugins: [require.resolve('./src/fedPrismPluginEntry.ts')],
+      // ...rest of your config
+    }),
+  ],
+}`,
+
+  'Rspack': `// rspack.config.js
+const { ModuleFederationPlugin } = require('@module-federation/enhanced/rspack')
+
+module.exports = {
+  plugins: [
+    new ModuleFederationPlugin({
+      name: 'myApp',
+      runtimePlugins: [require.resolve('./src/fedPrismPluginEntry.ts')],
+      // ...rest of your config
+    }),
+  ],
+}`,
+}
+
+function EmptyState() {
+  const [active, setActive] = useState<Tool>('Rsbuild')
+
+  return (
+    <div className="empty-state">
+      <div className="empty-state__icon">🔮</div>
+      <h2 className="empty-state__title">Waiting for your federation…</h2>
+      <p className="empty-state__body">
+        Add <code>@fed-prism/runtime-plugin</code> to each of your MF 2.0 apps.
+      </p>
+
+      {/* Step 1 — entry file (same for all tools) */}
+      <p className="empty-state__step">① Create this entry file in every app:</p>
+      <pre className="empty-state__code">{ENTRY_FILE}</pre>
+
+      {/* Step 2 — build tool config (tabbed) */}
+      <p className="empty-state__step">② Reference it in your build config:</p>
+      <div className="empty-state__tabs" role="tablist">
+        {TOOLS.map((t) => (
+          <button
+            key={t}
+            role="tab"
+            aria-selected={active === t}
+            className={`empty-state__tab${active === t ? ' empty-state__tab--active' : ''}`}
+            onClick={() => setActive(t)}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <pre className="empty-state__code">{EXAMPLES[active]}</pre>
+    </div>
+  )
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
 
 export function Dashboard({ aggregate, correlatedView }: DashboardProps) {
   const apps = correlatedView?.apps ?? []
@@ -77,21 +165,7 @@ export function Dashboard({ aggregate, correlatedView }: DashboardProps) {
       </div>
 
       {isEmpty ? (
-        <div className="empty-state">
-          <div className="empty-state__icon">🔮</div>
-          <h2 className="empty-state__title">Waiting for your federation…</h2>
-          <p className="empty-state__body">
-            Add <code>@fed-prism/runtime-plugin</code> to your MF 2.0 config, then start your app.
-          </p>
-          <pre className="empty-state__code">{`import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
-
-// In your rsbuild.config.ts:
-pluginModuleFederation({
-  name: 'shell',
-  runtimePlugins: [fedPrismPlugin()],
-  // ...your existing config
-})`}</pre>
-        </div>
+        <EmptyState />
       ) : (
         <>
           <div className="section-header">
