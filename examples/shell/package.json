@@ -1,0 +1,24 @@
+{
+  "name": "@fed-prism-examples/shell",
+  "version": "0.0.1",
+  "private": true,
+  "description": "FedPrism example — Shell/Host application (Rsbuild + MF 2.0)",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@fed-prism/runtime-plugin": "workspace:*",
+    "@module-federation/rsbuild-plugin": "^0.9.0",
+    "@rsbuild/core": "^1.3.14",
+    "@rsbuild/plugin-react": "^1.1.3",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "typescript": "^5.7.3"
+  }
+}

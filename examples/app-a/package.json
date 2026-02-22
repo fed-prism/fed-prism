@@ -1,0 +1,25 @@
+{
+  "name": "@fed-prism-examples/app-a",
+  "version": "0.0.1",
+  "private": true,
+  "description": "FedPrism example — App A (Remote of shell, Host of app-c, Rsbuild)",
+  "scripts": {
+    "dev": "rsbuild dev --port 3001",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview"
+  },
+  "dependencies": {
+    "lodash": "4.17.21",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "^0.9.0",
+    "@rsbuild/core": "^1.3.14",
+    "@rsbuild/plugin-react": "^1.1.3",
+    "@types/lodash": "^4.17.15",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "typescript": "^5.7.3"
+  }
+}

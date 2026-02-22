@@ -1,0 +1,39 @@
+{
+  "name": "fed-prism-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "FedPrism monorepo — a developer tool for Module Federation 2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fed-prism/fed-prism.git"
+  },
+  "homepage": "https://github.com/fed-prism/fed-prism",
+  "bugs": {
+    "url": "https://github.com/fed-prism/fed-prism/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\" --ignore-path .gitignore",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.12",
+    "prettier": "^3.5.2",
+    "turbo": "^2.4.4",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.6.1"
+}

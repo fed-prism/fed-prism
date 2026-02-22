@@ -1,0 +1,42 @@
+{
+  "name": "fed-prism",
+  "version": "0.0.1",
+  "description": "FedPrism — Module Federation 2.0 runtime inspector and dependency visualiser",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "fed-prism": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@fed-prism/server": "workspace:*",
+    "commander": "^13.1.0",
+    "open": "^10.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "module-federation",
+    "micro-frontend",
+    "mf2",
+    "dependency-inspector",
+    "devtool"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fed-prism/fed-prism.git",
+    "directory": "packages/cli"
+  },
+  "license": "MIT"
+}

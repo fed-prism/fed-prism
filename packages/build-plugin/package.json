@@ -1,0 +1,48 @@
+{
+  "name": "@fed-prism/build-plugin",
+  "version": "0.0.1",
+  "description": "Build tool plugin for FedPrism — Rsbuild, Rspack, and Webpack adapters",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./rsbuild": {
+      "import": "./dist/rsbuild.js",
+      "types": "./dist/rsbuild.d.ts"
+    },
+    "./rspack": {
+      "import": "./dist/rspack.js",
+      "types": "./dist/rspack.d.ts"
+    },
+    "./webpack": {
+      "import": "./dist/webpack.js",
+      "types": "./dist/webpack.d.ts"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@fed-prism/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fed-prism/fed-prism.git",
+    "directory": "packages/build-plugin"
+  },
+  "license": "MIT"
+}
