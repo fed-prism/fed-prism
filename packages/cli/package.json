@@ -1,6 +1,6 @@
 {
   "name": "fed-prism",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "description": "FedPrism — Module Federation 2.0 runtime inspector and dependency visualiser",
   "type": "module",
   "main": "./dist/index.js",
@@ -8,7 +8,9 @@
   "bin": {
     "fed-prism": "./dist/index.js"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "copyUi": "node scripts/copyUi.mjs",

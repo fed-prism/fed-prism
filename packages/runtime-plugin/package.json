@@ -1,6 +1,6 @@
 {
   "name": "@fed-prism/runtime-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "description": "Module Federation 2.0 runtime plugin for FedPrism — collects actual runtime data",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,7 +11,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

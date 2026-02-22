@@ -1,6 +1,6 @@
 {
   "name": "@fed-prism/build-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "description": "Build tool plugin for FedPrism — Rsbuild, Rspack, and Webpack adapters",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,7 +23,9 @@
       "types": "./dist/webpack.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",

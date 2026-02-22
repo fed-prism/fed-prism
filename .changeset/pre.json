@@ -13,5 +13,7 @@
     "@fed-prism/server": "0.0.1",
     "@fed-prism/ui": "0.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "chubby-flies-glow"
+  ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@fed-prism/ui",
-  "version": "0.0.1",
+  "version": "0.0.2-alpha.0",
   "description": "FedPrism dashboard UI — React 19 + Vite",
   "private": true,
   "type": "module",
