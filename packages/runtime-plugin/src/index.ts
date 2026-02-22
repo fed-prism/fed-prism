@@ -57,15 +57,52 @@ function isProduction(): boolean {
   }
 }
 
-function readFederationGlobal(): Partial<FederationSnapshot> {
+function readFederationGlobal(
+  instanceName: string,
+  staticRemoteNames: Set<string>,
+): Partial<FederationSnapshot> {
   if (typeof globalThis.__FEDERATION__ === 'undefined') {
     return {}
   }
   const fed = globalThis.__FEDERATION__
+  const rawModuleInfo = (fed.moduleInfo ?? {}) as Record<string, Record<string, unknown>>
+
+  // __FEDERATION__.moduleInfo[instanceName] contains THIS instance's own config,
+  // including remotesInfo which lists exactly which remotes it declared.
+  // We use this as the filter — the full moduleInfo is shared across the federation
+  // so without filtering we'd pick up every other app's remotes too.
+  const selfInfo = rawModuleInfo[instanceName] as Record<string, unknown> | undefined
+  const ownRemoteNames = new Set(
+    Object.keys((selfInfo?.remotesInfo ?? {}) as Record<string, unknown>),
+  )
+
+  // Extract remotes from moduleInfo keys shaped "remoteName:http://...manifest.json"
+  // Only include names that appear in this instance's own remotesInfo.
+  // loadType: 'static' if present at init, 'async' if it appeared later (on-demand).
+  const remotes: FederationSnapshot['remotes'] = []
+  for (const [key, info] of Object.entries(rawModuleInfo)) {
+    const httpIdx = key.indexOf(':http')
+    if (httpIdx === -1) continue // skip bare instance names
+    const name = key.slice(0, httpIdx)
+    if (!ownRemoteNames.has(name)) continue // skip remotes that aren't ours
+    const entry = typeof info?.remoteEntry === 'string' ? info.remoteEntry : null
+    const remotesInfo = (info?.remotesInfo ?? {}) as Record<string, unknown>
+    const loadType = staticRemoteNames.has(name) ? 'static' : 'async'
+    remotes.push({
+      name,
+      entry,
+      loadType,
+      loaded: true,
+      loadedAt: Date.now(),
+      modules: Object.keys(remotesInfo),
+    })
+  }
+
   return {
     shareScope: (fed.SHARE ?? {}) as FederationSnapshot['shareScope'],
-    moduleInfo: (fed.moduleInfo ?? {}) as FederationSnapshot['moduleInfo'],
+    moduleInfo: rawModuleInfo as unknown as FederationSnapshot['moduleInfo'],
     instances: (fed.__INSTANCES__ ?? []).map((i) => i.name),
+    remotes,
   }
 }
 
@@ -177,9 +214,13 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
 
   let instanceName = 'unknown'
 
+  // Track which remotes are present at init time — these are statically loaded.
+  // Any remote that appears in a later afterResolve is classified as 'async'.
+  const staticRemoteNames = new Set<string>()
+  let initDone = false
+
   const sendSnapshot = debounce((trigger: HookName) => {
-    console.log('[FedPrism] sendSnapshot called from trigger:', trigger)
-    const data = readFederationGlobal()
+    const data = readFederationGlobal(instanceName, staticRemoteNames)
     const snapshot: FederationSnapshot = {
       instanceName,
       timestamp: Date.now(),
@@ -187,7 +228,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
       shareScope: data.shareScope ?? {},
       moduleInfo: data.moduleInfo ?? {},
       instances: data.instances ?? [],
-      remotes: [],
+      remotes: data.remotes ?? [],
     }
     socket.send(snapshot)
   }, debounceMs)
@@ -198,35 +239,38 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
     name: 'fed-prism-plugin',
 
     init(args: unknown) {
-      console.log('[FedPrism] HOOK event: init', args)
       const typedArgs = args as { options?: { name?: string } } | undefined
       if (typedArgs?.options?.name) {
         instanceName = typedArgs.options.name
       }
       sendSnapshot('init')
+      // After init, snapshot whatever remotes are now known — mark them static
+      setTimeout(() => {
+        if (!initDone) {
+          initDone = true
+          const data = readFederationGlobal(instanceName, staticRemoteNames)
+          for (const r of data.remotes ?? []) staticRemoteNames.add(r.name)
+        }
+      }, 0)
       return args
     },
 
     afterResolve(args: unknown) {
-      console.log('[FedPrism] HOOK event: afterResolve', args)
       sendSnapshot('afterResolve')
       return args
     },
 
     onLoad(args: unknown) {
-      console.log('[FedPrism] HOOK event: onLoad', args)
       sendSnapshot('onLoad')
       return args
     },
 
     loadShare(args: unknown) {
-      console.log('[FedPrism] HOOK event: loadShare', args)
       sendSnapshot('loadShare')
       // BailHook - return void or boolean
     },
 
     errorLoadRemote(args: unknown) {
-      console.log('[FedPrism] HOOK event: errorLoadRemote', args)
       sendSnapshot('onLoad') // capture state at failure point too
       // SyncHook - return void
     },

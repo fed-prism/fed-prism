@@ -43,6 +43,51 @@ function scheduleCorrelation(): void {
   })
 }
 
+// ─── Manifest Auto-Discovery ──────────────────────────────────────────────────
+
+/**
+ * MF 2.0 stores resolved remote info in moduleInfo under keys like:
+ *   "app_a:http://localhost:3001/mf-manifest.json"
+ * We parse these to auto-register manifest URLs without requiring any config.
+ */
+async function autoDiscoverManifests(
+  snapshot: import('@fed-prism/core').FederationSnapshot,
+  origin: string | null = null,
+): Promise<void> {
+  const state = getState()
+  const existing = state.manifests
+  const tasks: Promise<void>[] = []
+
+  // Collect all moduleInfo key maps to scan — the incoming snapshot plus all stored ones.
+  // This matters for the shell (host): it appears as "shell:http://..." in remotes' snapshots,
+  // so we need to look across all snapshots to find its manifest URL.
+  const allModuleInfoKeys: string[] = [
+    ...Object.keys(snapshot.moduleInfo),
+    ...Object.values(state.snapshots).flatMap((s) => Object.keys(s.moduleInfo)),
+  ]
+
+  for (const key of allModuleInfoKeys) {
+    const httpIdx = key.indexOf(':http')
+    if (httpIdx === -1) continue
+    const name = key.slice(0, httpIdx)
+    const url = key.slice(httpIdx + 1)
+    if (!name || !url) continue
+    if (existing[name]) continue
+    tasks.push(registerRemote(name, url))
+  }
+
+  // If this app isn't registered yet and we have its Origin, try its own manifest.
+  // Needed for host-only apps (like shell) that never appear as a remote in anyone else's snapshot.
+  if (origin && !existing[snapshot.instanceName]) {
+    tasks.push(registerRemote(snapshot.instanceName, `${origin}/mf-manifest.json`))
+  }
+
+  if (tasks.length > 0) {
+    await Promise.allSettled(tasks)
+    scheduleCorrelation()
+  }
+}
+
 // ─── Server Factory ───────────────────────────────────────────────────────────
 
 export interface CreateServerResult {
@@ -69,7 +114,10 @@ export async function createServer(config: FedPrismConfig = {}): Promise<CreateS
 
   // ── WebSocket — runtime plugin connections ───────────────────────────────────
   await app.register(async (wsApp) => {
-    wsApp.get(FEDPRISM_WS_PATH, { websocket: true }, (socket, _req) => {
+    wsApp.get(FEDPRISM_WS_PATH, { websocket: true }, (socket, req) => {
+      // Use the Origin header to infer this app's own public URL.
+      // e.g. Origin: http://localhost:3000 -> http://localhost:3000/mf-manifest.json
+      const origin = (req.headers.origin as string | undefined) ?? null
       const pingInterval = setInterval(() => {
         if (socket.readyState === 1) {
           socket.send(JSON.stringify({ type: 'ping' }))
@@ -86,6 +134,8 @@ export async function createServer(config: FedPrismConfig = {}): Promise<CreateS
           }
           if (msg.type === 'snapshot') {
             upsertSnapshot((msg as WsMessage).payload)
+            // Discover manifest URLs from moduleInfo keys + the WS Origin header for self-manifest
+            void autoDiscoverManifests((msg as WsMessage).payload, origin)
             scheduleCorrelation()
           }
         } catch (err) {

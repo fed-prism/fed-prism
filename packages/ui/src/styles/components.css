@@ -249,3 +249,10 @@
 .react-flow__controls-button:hover {
   background: var(--color-bg-overlay) !important;
 }
+
+/* Workaround: @xyflow/react v12 sets the edge SVG z-index to -1 (via colorMode
+   stylesheet injection), putting edges behind the renderer layer (z-index: 4).
+   Override here so edges are always visible above background and pane. */
+.react-flow__edges {
+  z-index: 3 !important;
+}

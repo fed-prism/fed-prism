@@ -1,75 +1,18 @@
-import { useCallback, useMemo } from 'react'
-import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  type Node,
-  type Edge,
-  type Connection,
-  BackgroundVariant,
-} from '@xyflow/react'
-import '@xyflow/react/dist/style.css'
+import { useEffect, useRef, useState } from 'react'
 import type { CorrelatedView, GraphEdge } from '@fed-prism/core'
 
 interface DependencyGraphProps {
   correlatedView: CorrelatedView | null
 }
 
-// ─── Edge colour by type ──────────────────────────────────────────────────────
+// ─── Colours ──────────────────────────────────────────────────────────────────
+
 const EDGE_COLOURS: Record<string, string> = {
-  static: 'var(--color-edge-static)',
-  async: 'var(--color-edge-async)',
-  transitive: 'var(--color-edge-transitive)',
-  cyclic: 'var(--color-edge-cyclic)',
+  static: '#6366f1',
+  async: '#06b6d4',
+  transitive: '#9898b8',
+  cyclic: '#ef4444',
 }
-
-// ─── Layout — simple left-to-right dagre-like positioning ────────────────────
-
-function layoutNodes(
-  apps: CorrelatedView['apps'],
-  edges: GraphEdge[],
-): { id: string; x: number; y: number }[] {
-  // Assign rough topological columns using in-degree
-  const inDegree = new Map<string, number>()
-  for (const app of apps) inDegree.set(app.name, 0)
-  for (const edge of edges) {
-    inDegree.set(edge.target, (inDegree.get(edge.target) ?? 0) + 1)
-  }
-
-  const columns = new Map<string, number>()
-  const sorted = [...apps].sort((a, b) => (inDegree.get(a.name) ?? 0) - (inDegree.get(b.name) ?? 0))
-  let col = 0
-  let prev = -1
-  for (const app of sorted) {
-    const degree = inDegree.get(app.name) ?? 0
-    if (degree !== prev) { col++; prev = degree }
-    columns.set(app.name, col)
-  }
-
-  // Group nodes by column, assign y positions
-  const colNodes = new Map<number, string[]>()
-  for (const [name, c] of columns) {
-    if (!colNodes.has(c)) colNodes.set(c, [])
-    colNodes.get(c)!.push(name)
-  }
-
-  const positions: { id: string; x: number; y: number }[] = []
-  for (const [c, nodes] of colNodes) {
-    const totalH = nodes.length * 80
-    let y = -totalH / 2
-    for (const name of nodes) {
-      positions.push({ id: name, x: (c - 1) * 240, y })
-      y += 80
-    }
-  }
-  return positions
-}
-
-// ─── Node colours by status ───────────────────────────────────────────────────
 
 const STATUS_COLOURS: Record<string, string> = {
   online: '#22c55e',
@@ -78,61 +21,77 @@ const STATUS_COLOURS: Record<string, string> = {
   'runtime-only': '#38bdf8',
 }
 
+// ─── Layout ───────────────────────────────────────────────────────────────────
+
+const NODE_W = 140
+const NODE_H = 60
+const COL_GAP = 220
+const ROW_GAP = 90
+
+function layoutNodes(
+  apps: CorrelatedView['apps'],
+  edges: GraphEdge[],
+): Map<string, { x: number; y: number }> {
+  // Assign columns by in-degree (topological rank)
+  const inDegree = new Map<string, number>(apps.map((a) => [a.name, 0]))
+  for (const e of edges) inDegree.set(e.target, (inDegree.get(e.target) ?? 0) + 1)
+
+  const sorted = [...apps].sort((a, b) => (inDegree.get(a.name) ?? 0) - (inDegree.get(b.name) ?? 0))
+
+  const colOf = new Map<string, number>()
+  let col = 0
+  let prevDeg = -1
+  for (const app of sorted) {
+    const deg = inDegree.get(app.name) ?? 0
+    if (deg !== prevDeg) { col++; prevDeg = deg }
+    colOf.set(app.name, col)
+  }
+
+  // Group by column, assign Y
+  const colNodes = new Map<number, string[]>()
+  for (const [name, c] of colOf) {
+    if (!colNodes.has(c)) colNodes.set(c, [])
+    colNodes.get(c)!.push(name)
+  }
+
+  const positions = new Map<string, { x: number; y: number }>()
+  for (const [c, nodes] of colNodes) {
+    const totalH = nodes.length * NODE_H + (nodes.length - 1) * (ROW_GAP - NODE_H)
+    let y = -totalH / 2
+    for (const name of nodes) {
+      positions.set(name, { x: (c - 1) * COL_GAP, y })
+      y += ROW_GAP
+    }
+  }
+  return positions
+}
+
+function svgBounds(positions: Map<string, { x: number; y: number }>) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+  for (const { x, y } of positions.values()) {
+    minX = Math.min(minX, x)
+    minY = Math.min(minY, y)
+    maxX = Math.max(maxX, x + NODE_W)
+    maxY = Math.max(maxY, y + NODE_H)
+  }
+  const pad = 40
+  return { minX: minX - pad, minY: minY - pad, w: maxX - minX + pad * 2, h: maxY - minY + pad * 2 }
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function DependencyGraph({ correlatedView }: DependencyGraphProps) {
-  const { rfNodes, rfEdges } = useMemo(() => {
-    if (!correlatedView) return { rfNodes: [], rfEdges: [] }
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [size, setSize] = useState({ w: 800, h: 500 })
 
-    const positions = layoutNodes(correlatedView.apps, correlatedView.edges)
-    const posMap = new Map(positions.map((p) => [p.id, p]))
-
-    const rfNodes: Node[] = correlatedView.apps.map((app) => {
-      const pos = posMap.get(app.name) ?? { x: 0, y: 0 }
-      const statusColor = STATUS_COLOURS[app.status] ?? '#6064a0'
-      return {
-        id: app.name,
-        position: { x: pos.x, y: pos.y },
-        data: {
-          label: (
-            <div style={{ padding: '4px 8px', textAlign: 'center' }}>
-              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 2 }}>{app.name}</div>
-              <div style={{ fontSize: 10, color: statusColor }}>{app.status}</div>
-            </div>
-          ),
-        },
-        style: {
-          background: 'var(--color-bg-elevated)',
-          border: `2px solid ${statusColor}`,
-          borderRadius: 8,
-          color: 'var(--color-text-primary)',
-          fontSize: 12,
-          minWidth: 120,
-        },
-      }
+  useEffect(() => {
+    if (!containerRef.current) return
+    const obs = new ResizeObserver(([e]) => {
+      setSize({ w: e.contentRect.width, h: e.contentRect.height })
     })
-
-    const rfEdges: Edge[] = correlatedView.edges.map((edge, i) => ({
-      id: `edge-${i}`,
-      source: edge.source,
-      target: edge.target,
-      label: edge.type,
-      animated: edge.type === 'async',
-      style: { stroke: EDGE_COLOURS[edge.type] ?? '#9898b8' },
-      labelStyle: { fill: 'var(--color-text-muted)', fontSize: 10 },
-      labelBgStyle: { fill: 'var(--color-bg-elevated)' },
-    }))
-
-    return { rfNodes, rfEdges }
-  }, [correlatedView])
-
-  const [nodes, , onNodesChange] = useNodesState(rfNodes)
-  const [edges, setEdges, onEdgesChange] = useEdgesState(rfEdges)
-
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges],
-  )
+    obs.observe(containerRef.current)
+    return () => obs.disconnect()
+  }, [])
 
   if (!correlatedView || correlatedView.apps.length === 0) {
     return (
@@ -152,6 +111,16 @@ export function DependencyGraph({ correlatedView }: DependencyGraphProps) {
     )
   }
 
+  const positions = layoutNodes(correlatedView.apps, correlatedView.edges)
+  const bounds = svgBounds(positions)
+
+  // Scale to fit the container
+  const scaleX = size.w / bounds.w
+  const scaleY = size.h / bounds.h
+  const scale = Math.min(scaleX, scaleY, 1)
+  const vw = bounds.w
+  const vh = bounds.h
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="page-header">
@@ -162,7 +131,7 @@ export function DependencyGraph({ correlatedView }: DependencyGraphProps) {
         </p>
       </div>
 
-      {/* Edge type legend */}
+      {/* Legend */}
       <div className="graph-legend">
         {Object.entries(EDGE_COLOURS).map(([type, colour]) => (
           <div key={type} className="graph-legend__item">
@@ -172,27 +141,119 @@ export function DependencyGraph({ correlatedView }: DependencyGraphProps) {
         ))}
       </div>
 
-      <div style={{ flex: 1, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--color-border-subtle)', minHeight: 500 }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          colorMode="dark"
-          proOptions={{ hideAttribution: false }}
+      {/* SVG canvas */}
+      <div
+        ref={containerRef}
+        style={{
+          flex: 1,
+          borderRadius: 8,
+          overflow: 'hidden',
+          border: '1px solid var(--color-border-subtle)',
+          minHeight: 400,
+          background: 'var(--color-bg-surface)',
+        }}
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox={`${bounds.minX} ${bounds.minY} ${vw} ${vh}`}
+          style={{ display: 'block' }}
         >
-          <Background variant={BackgroundVariant.Dots} color="var(--color-border-subtle)" size={1} />
-          <Controls style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-subtle)' }} />
-          <MiniMap
-            style={{ background: 'var(--color-bg-surface)' }}
-            nodeColor={(node) => {
-              const app = correlatedView.apps.find((a) => a.name === node.id)
-              return STATUS_COLOURS[app?.status ?? 'offline'] ?? '#6064a0'
-            }}
-          />
-        </ReactFlow>
+          <defs>
+            {Object.entries(EDGE_COLOURS).map(([type, colour]) => (
+              <marker
+                key={type}
+                id={`arrow-${type}`}
+                markerWidth="8"
+                markerHeight="8"
+                refX="6"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L0,6 L8,3 z" fill={colour} />
+              </marker>
+            ))}
+          </defs>
+
+          {/* Edges */}
+          {correlatedView.edges.map((edge, i) => {
+            const src = positions.get(edge.source)
+            const tgt = positions.get(edge.target)
+            if (!src || !tgt) return null
+            const colour = EDGE_COLOURS[edge.type] ?? '#9898b8'
+            // Connect right-center of source to left-center of target
+            const x1 = src.x + NODE_W
+            const y1 = src.y + NODE_H / 2
+            const x2 = tgt.x
+            const y2 = tgt.y + NODE_H / 2
+            const cx = (x1 + x2) / 2
+            const d = `M${x1},${y1} C${cx},${y1} ${cx},${y2} ${x2},${y2}`
+            return (
+              <g key={i}>
+                <path
+                  d={d}
+                  fill="none"
+                  stroke={colour}
+                  strokeWidth={2}
+                  markerEnd={`url(#arrow-${edge.type})`}
+                  opacity={0.85}
+                />
+                {/* Edge label at midpoint */}
+                <text
+                  x={cx}
+                  y={(y1 + y2) / 2 - 6}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill={colour}
+                  opacity={0.7}
+                >
+                  {edge.type}
+                </text>
+              </g>
+            )
+          })}
+
+          {/* Nodes */}
+          {correlatedView.apps.map((app) => {
+            const pos = positions.get(app.name)
+            if (!pos) return null
+            const statusColor = STATUS_COLOURS[app.status] ?? '#6064a0'
+            return (
+              <g key={app.name} transform={`translate(${pos.x},${pos.y})`}>
+                <rect
+                  width={NODE_W}
+                  height={NODE_H}
+                  rx={8}
+                  fill="#1e1e2a"
+                  stroke={statusColor}
+                  strokeWidth={2}
+                />
+                <text
+                  x={NODE_W / 2}
+                  y={NODE_H / 2 - 6}
+                  textAnchor="middle"
+                  fontSize={14}
+                  fontWeight="600"
+                  fill="#e8e8f0"
+                >
+                  {app.name}
+                </text>
+                <text
+                  x={NODE_W / 2}
+                  y={NODE_H / 2 + 12}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fill={statusColor}
+                >
+                  {app.status}
+                </text>
+                {/* Connection handles (cosmetic) */}
+                <circle cx={0} cy={NODE_H / 2} r={4} fill="#1e1e2a" stroke="#4a4a6a" strokeWidth={1.5} />
+                <circle cx={NODE_W} cy={NODE_H / 2} r={4} fill="#1e1e2a" stroke="#4a4a6a" strokeWidth={1.5} />
+              </g>
+            )
+          })}
+        </svg>
       </div>
     </div>
   )

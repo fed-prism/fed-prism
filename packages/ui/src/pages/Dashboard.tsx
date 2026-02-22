@@ -17,6 +17,22 @@ function AppStatusBadge({ status }: { status: CorrelatedApp['status'] }) {
   return <span className={cls}>{label}</span>
 }
 
+/**
+ * For runtime-only apps (no manifest yet fetched), MF2 still populates
+ * moduleInfo with entries keyed "appName:http://..." that include publicPath.
+ * This extracts it so the table column is never an em-dash for live apps.
+ */
+function extractPublicPath(app: CorrelatedApp): string | null {
+  if (!app.snapshot) return null
+  const prefix = app.name + ':http'
+  for (const [key, info] of Object.entries(app.snapshot.moduleInfo)) {
+    if (key.startsWith(prefix)) {
+      return (info as unknown as Record<string, unknown>)?.publicPath as string ?? null
+    }
+  }
+  return null
+}
+
 function AppRow({ app }: { app: CorrelatedApp }) {
   const lastSeen = app.lastSeen
     ? new Date(app.lastSeen).toLocaleTimeString()
@@ -27,7 +43,7 @@ function AppRow({ app }: { app: CorrelatedApp }) {
       <td className="table-cell table-cell--mono">{app.name}</td>
       <td className="table-cell"><AppStatusBadge status={app.status} /></td>
       <td className="table-cell table-cell--muted">
-        {app.manifest?.metaData?.publicPath ?? '—'}
+        {app.manifest?.metaData?.publicPath ?? extractPublicPath(app) ?? '—'}
       </td>
       <td className="table-cell table-cell--muted">{lastSeen}</td>
     </tr>
