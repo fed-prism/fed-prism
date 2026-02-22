@@ -1,0 +1,251 @@
+/* FedPrism Component Styles — tables, badges, toolbars, alerts, graph legend */
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table-th {
+  text-align: left;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
+.table-row {
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background-color var(--transition-fast);
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.table-row:hover {
+  background-color: var(--color-bg-elevated);
+}
+
+.table-cell {
+  padding: var(--space-3) var(--space-4);
+  vertical-align: top;
+  color: var(--color-text-primary);
+}
+
+.table-cell--mono {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
+.table-cell--muted {
+  color: var(--color-text-muted);
+}
+
+/* ── Badges ───────────────────────────────────────────────────────────────── */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.02em;
+}
+
+.badge--success {
+  background-color: rgba(34, 197, 94, 0.12);
+  color: var(--color-success);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.badge--warning {
+  background-color: rgba(245, 158, 11, 0.12);
+  color: var(--color-warning);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge--info {
+  background-color: rgba(56, 189, 248, 0.12);
+  color: var(--color-info);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.badge--muted {
+  background-color: rgba(148, 163, 184, 0.08);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border-subtle);
+}
+
+/* ── Section Header ───────────────────────────────────────────────────────── */
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.section-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────── */
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.filter-tabs {
+  display: flex;
+  gap: var(--space-1);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.filter-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.filter-tab:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-overlay);
+}
+
+.filter-tab--active {
+  background-color: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+}
+
+.filter-tab__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 var(--space-1);
+  height: 18px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  background-color: var(--color-bg-base);
+  color: var(--color-text-muted);
+}
+
+.filter-tab__count--error {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: var(--color-error);
+}
+
+/* ── Alerts ──────────────────────────────────────────────────────────────── */
+
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+  border: 1px solid transparent;
+}
+
+.alert--warning {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
+  color: var(--color-text-primary);
+}
+
+.alert a {
+  color: var(--color-warning);
+  text-decoration: underline;
+}
+
+/* ── Stat card value error state ─────────────────────────────────────────── */
+
+.stat-card__value--error {
+  color: var(--color-error);
+}
+
+/* ── App header extras ───────────────────────────────────────────────────── */
+
+.app-header__app-count {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  padding: 2px var(--space-3);
+}
+
+.status-dot--reconnecting {
+  background-color: var(--color-warning);
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Graph Legend ─────────────────────────────────────────────────────────── */
+
+.graph-legend {
+  display: flex;
+  gap: var(--space-6);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  align-items: center;
+}
+
+.graph-legend__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.graph-legend__line {
+  display: inline-block;
+  width: 20px;
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.graph-legend__label {
+  text-transform: capitalize;
+}
+
+/* ── React Flow overrides ─────────────────────────────────────────────────── */
+
+.react-flow__controls-button {
+  background: var(--color-bg-elevated) !important;
+  border-color: var(--color-border-subtle) !important;
+  fill: var(--color-text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--color-bg-overlay) !important;
+}
