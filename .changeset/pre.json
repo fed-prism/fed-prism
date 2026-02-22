@@ -1,0 +1,17 @@
+{
+  "mode": "pre",
+  "tag": "alpha",
+  "initialVersions": {
+    "@fed-prism-examples/app-a": "0.0.1",
+    "@fed-prism-examples/app-b": "0.0.1",
+    "@fed-prism-examples/app-c": "0.0.1",
+    "@fed-prism-examples/shell": "0.0.1",
+    "@fed-prism/build-plugin": "0.0.1",
+    "fed-prism": "0.0.1",
+    "@fed-prism/core": "0.0.1",
+    "@fed-prism/runtime-plugin": "0.0.1",
+    "@fed-prism/server": "0.0.1",
+    "@fed-prism/ui": "0.0.1"
+  },
+  "changesets": []
+}
