@@ -11,6 +11,7 @@
   "files": ["dist"],
   "scripts": {
     "build": "tsc",
+    "copyUi": "node scripts/copyUi.mjs",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist *.tsbuildinfo",
     "lint": "eslint src --ext .ts"
