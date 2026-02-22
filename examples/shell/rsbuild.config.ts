@@ -10,7 +10,7 @@ export default defineConfig({
       name: 'shell',
       remotes: {
         'app-a': 'app_a@http://localhost:3001/mf-manifest.json',
-        // app-b is loaded asynchronously at runtime — not listed here
+        'app-b': 'app_b@http://localhost:3002/mf-manifest.json',
       },
       shared: {
         react: { singleton: true, eager: true, requiredVersion: '^18.0.0' },

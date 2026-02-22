@@ -30,7 +30,7 @@ module.exports = {
     }),
     new ModuleFederationPlugin({
       name: 'app_b',
-      filename: 'mf-manifest.json',
+      filename: 'remoteEntry.js',
       exposes: {
         './Widget': './src/components/Widget.tsx',
         './DataService': './src/services/DataService.ts',

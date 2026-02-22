@@ -70,21 +70,32 @@ export async function createServer(config: FedPrismConfig = {}): Promise<CreateS
   // ── WebSocket — runtime plugin connections ───────────────────────────────────
   await app.register(async (wsApp) => {
     wsApp.get(FEDPRISM_WS_PATH, { websocket: true }, (socket, _req) => {
-      socket.on('message', (raw) => {
-        let msg: WsMessage | { type: 'ping' }
+      const pingInterval = setInterval(() => {
+        if (socket.readyState === 1) {
+          socket.send(JSON.stringify({ type: 'ping' }))
+        }
+      }, 10000)
+
+      console.log(`[Server] New WebSocket connection on ${FEDPRISM_WS_PATH}`)
+
+      socket.on('message', (message: string) => {
         try {
-          msg = JSON.parse(raw.toString()) as WsMessage | { type: 'ping' }
-        } catch {
-          return
+          const msg = JSON.parse(message)
+          if (msg.type !== 'ping') {
+            console.log(`[Server] WsMessage received: ${msg.type}`, msg.payload?.instanceName)
+          }
+          if (msg.type === 'snapshot') {
+            upsertSnapshot((msg as WsMessage).payload)
+            scheduleCorrelation()
+          }
+        } catch (err) {
+          console.error('[Server] Failed to handle WS message', err)
         }
+      })
 
-        if (msg.type === 'ping') return
-
-        if (msg.type === 'snapshot') {
-          const snapshot = msg.payload
-          upsertSnapshot(snapshot)
-          scheduleCorrelation()
-        }
+      socket.on('close', () => {
+        console.log(`[Server] WebSocket connection closed`)
+        clearInterval(pingInterval)
       })
 
       socket.on('error', () => {
@@ -157,7 +168,7 @@ export async function createServer(config: FedPrismConfig = {}): Promise<CreateS
 
   return {
     start: async () => {
-      const address = await app.listen({ port, host: '127.0.0.1' })
+      const address = await app.listen({ port, host: '0.0.0.0' })
 
       // Seed registered remotes from config
       await Promise.allSettled(remotes.map((r) => registerRemote(r.name, r.manifestUrl)))

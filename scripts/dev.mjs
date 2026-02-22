@@ -27,77 +27,51 @@ function isPortInUse(port) {
   })
 }
 
-function checkIsFedPrism(port) {
-  return new Promise((resolve) => {
-    const req = http.get(`http://127.0.0.1:${port}/api/status`, (res) => {
-      let data = ''
-      res.on('data', chunk => { data += chunk })
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(data).status === 'ok')
-        } catch {
-          resolve(false)
-        }
-      })
-    })
-    req.on('error', () => resolve(false))
-    req.setTimeout(1000, () => { req.destroy(); resolve(false) })
-  })
-}
-
 async function handlePort(port) {
   const inUse = await isPortInUse(port)
   if (!inUse) return // Free
 
-  // Port is in use, is it FedPrism?
-  const isFedPrism = await checkIsFedPrism(port)
-  
-  if (isFedPrism) {
-    console.log(`  ⚡ Found stale FedPrism server on port ${port} — killing...`)
-    await new Promise((resolve) => {
-      const killer = spawn('npx', ['--yes', 'kill-port', String(port)], {
-        stdio: 'pipe', shell: true,
-      })
-      killer.on('close', resolve)
+  console.log(`  ⚡ Port ${port} is in use (likely a stale process). Force killing it...`)
+  await new Promise((resolve) => {
+    const killer = spawn('npx', ['--yes', 'kill-port', String(port)], {
+      stdio: 'pipe', shell: true,
     })
-    console.log(`  ✓ Port ${port} cleared\n`)
-  } else {
-    console.error(`\n❌ ERROR: Port ${port} is already in use by another application.`)
-    console.error(`   FedPrism needs port ${port} to communicate with example apps.`)
-    console.error(`   Please free the port and try again.\n`)
-    process.exit(1)
-  }
+    killer.on('close', resolve)
+  })
+  console.log(`  ✓ Port ${port} cleared\n`)
 }
 
-await handlePort(7357)
-
-// ─── Start all 6 processes concurrently ──────────────────────────────────────
+// Clear all expected ports before starting to ensure a clean launch
+await handlePort(7357) // server
+await handlePort(3000) // shell
+await handlePort(3001) // app-a
+await handlePort(3002) // app-b
+await handlePort(3003) // app-c
 
 const commands = [
-  'node packages/cli/dist/index.js start --no-open',
-  'pnpm --filter @fed-prism/ui dev',
-  'pnpm --filter @fed-prism-examples/app-c dev',
-  'pnpm --filter @fed-prism-examples/app-b dev',
-  'pnpm --filter @fed-prism-examples/app-a dev',
-  'pnpm --filter @fed-prism-examples/shell dev',
+  '"node packages/cli/dist/index.js start"',
+  '"pnpm --filter @fed-prism/ui dev"',
+  '"pnpm --filter @fed-prism-examples/app-c dev"',
+  '"pnpm --filter @fed-prism-examples/app-b dev"',
+  '"pnpm --filter @fed-prism-examples/app-a dev"',
+  '"pnpm --filter @fed-prism-examples/shell dev"',
 ]
 
 const names   = 'server,ui,app-c,app-b,app-a,shell'
 const colors  = 'blue.bold,cyan.bold,green.bold,yellow.bold,red.bold,magenta.bold'
 
-const proc = spawn(
-  'npx',
-  [
-    'concurrently',
-    '--names', names,
-    '--prefix-colors', colors,
-    '--kill-others',
-    '--kill-others-on-fail',
-    '--handle-input',
-    ...commands,
-  ],
-  { stdio: 'inherit', shell: true, cwd: join(__dirname, '..') }
-)
+// On Windows with shell: true, spawn needs the args as a single string
+// if they contain spaces and quotes.
+const args = [
+  '--names', names,
+  '--prefix-colors', colors,
+  '--kill-others',
+  '--kill-others-on-fail',
+  '--handle-input',
+  ...commands
+].join(' ')
+
+const proc = spawn(`npx concurrently ${args}`, { stdio: 'inherit', shell: true, cwd: join(__dirname, '..') })
 
 proc.on('exit', (code) => process.exit(code ?? 0))
 process.on('SIGINT', () => proc.kill('SIGINT'))

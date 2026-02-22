@@ -7,7 +7,7 @@ export default defineConfig({
     pluginReact(),
     pluginModuleFederation({
       name: 'app_a',
-      filename: 'mf-manifest.json',
+      filename: 'remoteEntry.js',
       exposes: {
         './Button': './src/components/Button.tsx',
         './Header': './src/components/Header.tsx',

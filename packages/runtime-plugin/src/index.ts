@@ -14,11 +14,11 @@ import {
 
 interface MfRuntimePlugin {
   name: string
-  afterResolve?: (args: unknown) => void
-  onLoad?: (args: unknown) => void
+  afterResolve?: (args: unknown) => unknown
+  onLoad?: (args: unknown) => unknown
   loadShare?: (args: unknown) => Promise<boolean | void> | boolean | void
-  init?: (args: unknown) => void
-  errorLoadRemote?: (args: unknown) => void | never
+  init?: (args: unknown) => unknown
+  errorLoadRemote?: (args: unknown) => void
 }
 
 // ─── globalThis.__FEDERATION__ type (minimal) ─────────────────────────────────
@@ -90,6 +90,10 @@ class FedPrismWebSocket {
       this.ws.onopen = () => {
         this.reconnectAttempts = 0
         this.startPing()
+        while (this.messageQueue.length > 0) {
+          const msg = this.messageQueue.shift()
+          if (msg) this.flush(msg)
+        }
       }
       this.ws.onclose = () => {
         this.stopPing()
@@ -103,11 +107,20 @@ class FedPrismWebSocket {
     }
   }
 
+  private messageQueue: WsMessage[] = []
+
   send(snapshot: FederationSnapshot): void {
-    if (this.ws?.readyState !== WebSocket.OPEN) return
     const message: WsMessage = { type: 'snapshot', payload: snapshot }
+    if (this.ws?.readyState !== WebSocket.OPEN) {
+      this.messageQueue.push(message)
+      return
+    }
+    this.flush(message)
+  }
+
+  private flush(message: WsMessage): void {
     try {
-      this.ws.send(JSON.stringify(message))
+      this.ws?.send(JSON.stringify(message))
     } catch {
       // Silent
     }
@@ -144,11 +157,15 @@ interface FedPrismPluginOptions {
 }
 
 export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePlugin {
+  console.log('[FedPrism] Plugin factory executing with options:', options)
+  
   const {
     port = FEDPRISM_DEFAULT_PORT,
     debounceMs = FEDPRISM_SNAPSHOT_DEBOUNCE_MS,
     enabled = !isProduction(),
   } = options
+
+  console.log('[FedPrism] Plugin enabled?:', enabled, 'port:', port)
 
   if (!enabled) {
     // Return no-op plugin in production
@@ -161,6 +178,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
   let instanceName = 'unknown'
 
   const sendSnapshot = debounce((trigger: HookName) => {
+    console.log('[FedPrism] sendSnapshot called from trigger:', trigger)
     const data = readFederationGlobal()
     const snapshot: FederationSnapshot = {
       instanceName,
@@ -174,33 +192,46 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
     socket.send(snapshot)
   }, debounceMs)
 
+  console.log('[FedPrism] Returning plugin object object from factory')
+
   return {
     name: 'fed-prism-plugin',
 
-    init(args: unknown): void {
+    init(args: unknown) {
+      console.log('[FedPrism] HOOK event: init', args)
       const typedArgs = args as { options?: { name?: string } } | undefined
       if (typedArgs?.options?.name) {
         instanceName = typedArgs.options.name
       }
       sendSnapshot('init')
+      return args
     },
 
-    afterResolve(): void {
+    afterResolve(args: unknown) {
+      console.log('[FedPrism] HOOK event: afterResolve', args)
       sendSnapshot('afterResolve')
+      return args
     },
 
-    onLoad(): void {
+    onLoad(args: unknown) {
+      console.log('[FedPrism] HOOK event: onLoad', args)
       sendSnapshot('onLoad')
+      return args
     },
 
-    loadShare(): void {
+    loadShare(args: unknown) {
+      console.log('[FedPrism] HOOK event: loadShare', args)
       sendSnapshot('loadShare')
+      // BailHook - return void or boolean
     },
 
-    errorLoadRemote(): void {
+    errorLoadRemote(args: unknown) {
+      console.log('[FedPrism] HOOK event: errorLoadRemote', args)
       sendSnapshot('onLoad') // capture state at failure point too
+      // SyncHook - return void
     },
   }
 }
 
-export type { FedPrismPluginOptions, FedPrismConfig }
+
+export type { FedPrismPluginOptions, FedPrismConfig, MfRuntimePlugin }

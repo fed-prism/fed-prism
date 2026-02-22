@@ -33,7 +33,7 @@ module.exports = {
   plugins: [
     new ModuleFederationPlugin({
       name: 'app_c',
-      filename: 'mf-manifest.json',
+      filename: 'remoteEntry.js',
       exposes: {
         './Chart': './src/components/Chart.tsx',
         './Utils': './src/utils/Utils.ts',

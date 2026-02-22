@@ -65,7 +65,7 @@ export default {
 
 // src/fedPrismPluginEntry.ts
 // import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
-// export default fedPrismPlugin()
+// export default function () { return fedPrismPlugin() }
 ```
 
 </details>
@@ -77,7 +77,7 @@ export default {
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/webpack')
 // src/fedPrismPluginEntry.ts:
 // import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
-// export default fedPrismPlugin()
+// export default function () { return fedPrismPlugin() }
 
 new ModuleFederationPlugin({
   name: 'shell',
@@ -95,7 +95,7 @@ new ModuleFederationPlugin({
 const { ModuleFederationPlugin } = require('@module-federation/enhanced/rspack')
 // src/fedPrismPluginEntry.ts:
 // import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
-// export default fedPrismPlugin()
+// export default function () { return fedPrismPlugin() }
 
 new ModuleFederationPlugin({
   name: 'shell',
@@ -106,12 +106,16 @@ new ModuleFederationPlugin({
 
 </details>
 
-**3. Start the FedPrism dashboard:**
+**3. Start the FedPrism ecosystem:**
 
 ```bash
-npx fed-prism start
-# → Dashboard at http://localhost:7357
+pnpm dev:all
+# → Starts the dashboard UI at http://localhost:7358
+# → Starts the FedPrism server at ws://localhost:7357
+# → Starts all example applications
 ```
+
+> **Note**: Runtime plugins only collect data when the applications are actually loaded in a browser! To populate the dashboard, you must open the example apps (e.g., `http://localhost:3000`). Alternatively, you can use a headless browser script (like Playwright or Puppeteer) to automate this and trigger the plugins effortlessly during development or CI/CD.
 
 ## Examples
 

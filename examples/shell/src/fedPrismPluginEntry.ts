@@ -5,4 +5,6 @@
  */
 import { fedPrismPlugin } from '@fed-prism/runtime-plugin'
 
-export default fedPrismPlugin({ port: 7357 })
+export default function () {
+  return fedPrismPlugin({ port: 7357, enabled: true })
+}
