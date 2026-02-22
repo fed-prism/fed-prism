@@ -13,17 +13,18 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
+    "build": "turbo run build --filter=./packages/*",
+    "build:examples": "turbo run build --filter=./examples/*",
+    "dev": "turbo run dev --filter=./packages/*",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
+    "typecheck": "turbo run typecheck --filter=./packages/*",
     "test": "turbo run test",
-    "clean": "turbo run clean && rm -rf node_modules",
+    "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yaml,yml,css}\" --ignore-path .gitignore",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "release": "turbo run build --filter=./packages/* && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.12",

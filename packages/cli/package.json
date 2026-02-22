@@ -16,11 +16,13 @@
     "lint": "eslint src --ext .ts"
   },
   "dependencies": {
+    "@fed-prism/core": "workspace:*",
     "@fed-prism/server": "workspace:*",
     "commander": "^13.1.0",
     "open": "^10.1.0"
   },
   "devDependencies": {
+    "@types/node": "^22.13.6",
     "typescript": "^5.7.3"
   },
   "publishConfig": {

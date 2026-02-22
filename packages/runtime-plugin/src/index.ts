@@ -35,12 +35,26 @@ declare global {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function debounce<T extends (...args: unknown[]) => void>(fn: T, ms: number): T {
+// Safe browser-compatible debounce. Uses a fixed `(trigger: HookName) => void`
+// overload so callers don't need to cast.
+function debounce(fn: (trigger: HookName) => void, ms: number): (trigger: HookName) => void {
   let timer: ReturnType<typeof setTimeout> | null = null
-  return ((...args: unknown[]) => {
+  return (trigger: HookName) => {
     if (timer) clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), ms)
-  }) as T
+    timer = setTimeout(() => fn(trigger), ms)
+  }
+}
+
+/** Browser-safe check for production mode — avoids referencing Node's `process`. */
+function isProduction(): boolean {
+  // Bundlers (Vite, Webpack, Rsbuild) replace import.meta.env.MODE at build time.
+  // Fall back to false (i.e. enabled) if the variable is absent.
+  try {
+    // @ts-expect-error import.meta.env is injected by bundlers; not present in tsc
+    return import.meta.env?.MODE === 'production'
+  } catch {
+    return false
+  }
 }
 
 function readFederationGlobal(): Partial<FederationSnapshot> {
@@ -133,7 +147,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
   const {
     port = FEDPRISM_DEFAULT_PORT,
     debounceMs = FEDPRISM_SNAPSHOT_DEBOUNCE_MS,
-    enabled = process.env['NODE_ENV'] !== 'production',
+    enabled = !isProduction(),
   } = options
 
   if (!enabled) {
