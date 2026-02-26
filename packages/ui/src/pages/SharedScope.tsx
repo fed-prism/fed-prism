@@ -85,9 +85,15 @@ function DepRow({ dep }: { dep: CorrelatedSharedDep }) {
 
 export function SharedScope({ correlatedView }: SharedScopeProps) {
   const deps = correlatedView?.sharedDeps ?? []
-  const conflicts = deps.filter((d) => d.conflict)
   const [filter, setFilter] = useState<'all' | 'conflicts'>('all')
-  const displayed = filter === 'conflicts' ? conflicts : deps
+  const [search, setSearch] = useState('')
+
+  const filteredBySearch = deps.filter((d) =>
+    d.packageName.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const conflicts = filteredBySearch.filter((d) => d.conflict)
+  const displayed = filter === 'conflicts' ? conflicts : filteredBySearch
 
   return (
     <div>
@@ -114,7 +120,7 @@ export function SharedScope({ correlatedView }: SharedScopeProps) {
                 className={`filter-tab${filter === 'all' ? ' filter-tab--active' : ''}`}
                 onClick={() => setFilter('all')}
               >
-                All <span className="filter-tab__count">{deps.length}</span>
+                All <span className="filter-tab__count">{filteredBySearch.length}</span>
               </button>
               <button
                 className={`filter-tab${filter === 'conflicts' ? ' filter-tab--active' : ''}`}
@@ -125,6 +131,26 @@ export function SharedScope({ correlatedView }: SharedScopeProps) {
                   {conflicts.length}
                 </span>
               </button>
+            </div>
+
+            <div className="search-box" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <span style={{ fontSize: 'var(--font-size-sm)', opacity: 0.5 }}>🔍</span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Search packages..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{
+                  background: 'var(--color-bg-alt)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-md)',
+                  padding: 'var(--space-1) var(--space-2)',
+                  color: 'inherit',
+                  fontSize: 'var(--font-size-sm)',
+                  width: '240px'
+                }}
+              />
             </div>
           </div>
 

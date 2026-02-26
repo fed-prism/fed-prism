@@ -115,7 +115,9 @@ function buildSharedDeps(
   for (const [appName, { manifest }] of Object.entries(manifests)) {
     if (!manifest) continue
     
-    // Skip manifest fallback completely if the app already provided perfectly scoped declarations at runtime
+    // Skip manifest fallback COMPLETELY if the app already provided perfectly scoped declarations at runtime.
+    // This prevents "Declaration Bleed" where a package scoped to 'modern-ui' in shell gets 
+    // the 'legacy-ui' declarations from app_a if they happen to share the same package name.
     const snapshot = snapshots[appName]
     if (snapshot?.declaredShared && snapshot.declaredShared.length > 0) {
       continue
@@ -168,7 +170,12 @@ function buildSharedDeps(
     }
   }
 
-  return result.sort((a, b) => a.packageName.localeCompare(b.packageName))
+  return result.sort((a, b) => {
+    // Sort primarily by scope (asc), then by packageName (asc)
+    const scopeCompare = a.scope.localeCompare(b.scope)
+    if (scopeCompare !== 0) return scopeCompare
+    return a.packageName.localeCompare(b.packageName)
+  })
 }
 
 // ─── Graph Edges ──────────────────────────────────────────────────────────────
