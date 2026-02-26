@@ -1,0 +1,37 @@
+{
+  "id": "app_a",
+  "name": "app_a",
+  "metaData": {
+    "name": "app_a",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "0.0.1",
+      "buildName": "@fed-prism-examples/app-a"
+    },
+    "remoteEntry": {
+      "name": "remoteEntry.js",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": "@mf-types.zip",
+      "api": "@mf-types.d.ts"
+    },
+    "globalName": "app_a",
+    "pluginVersion": "0.9.1",
+    "prefetchInterface": false,
+    "publicPath": "http://localhost:3001/"
+  },
+  "shared": [],
+  "remotes": [
+    {
+      "federationContainerName": "app_c",
+      "moduleName": "UNKNOWN",
+      "alias": "app-c",
+      "entry": "http://localhost:3003/mf-manifest.json"
+    }
+  ],
+  "exposes": []
+}

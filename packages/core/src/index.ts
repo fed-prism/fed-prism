@@ -63,6 +63,7 @@ export interface FederationSnapshot {
   moduleInfo: ModuleInfoData
   instances: string[]
   remotes: RemoteData[]
+  declaredShared?: RuntimeSharedDeclared[]
 }
 
 // ─── mf-manifest.json (MF 2.0 build artifact) ────────────────────────────────
@@ -136,6 +137,10 @@ export interface SharedDeclared {
   singleton: boolean
   eager: boolean
   strictVersion: boolean
+}
+
+export interface RuntimeSharedDeclared extends SharedDeclared {
+  name: string
 }
 
 export interface SharedActual {

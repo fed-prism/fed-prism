@@ -1,4 +1,19 @@
 import React, { lazy, Suspense, useState } from 'react'
+import { create } from 'zustand'
+import { motion } from 'framer-motion'
+import { z } from 'zod'
+import { nanoid } from 'nanoid'
+import { QueryClient } from '@tanstack/react-query'
+import { BrowserRouter } from 'react-router-dom'
+import { createStore } from 'redux'
+import clsx from 'clsx'
+// Defeat aggressive tree-shaking
+// @ts-ignore
+window.__keep_shell = window.__keep_shell || []
+// @ts-ignore
+window.__keep_shell.push(motion, z, nanoid, QueryClient, BrowserRouter, createStore, clsx)
+
+const useStore = create(() => ({ initialized: true }))
 
 // Static remote — loaded at startup
 const RemoteButton = lazy(() => import('app-a/Button'))
@@ -28,7 +43,7 @@ export function App() {
           Static Remote: Button from app-a
         </h2>
         <Suspense fallback={<span style={{ color: '#999' }}>Loading Button…</span>}>
-          <RemoteButton />
+          <RemoteButton onClick={() => alert('Button clicked! Loaded from app-a')} />
         </Suspense>
       </section>
 

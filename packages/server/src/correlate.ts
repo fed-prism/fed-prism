@@ -60,11 +60,41 @@ function buildSharedDeps(
     return scopeMap.get(scope)!
   }
 
-  // Declared data from manifests
+  // Map pkg name to the scope it appeared in at runtime. Default to 'default' if never seen.
+  const pkgScopeMap = new Map<string, string>()
+
+  const seenActuals = new Set<string>()
+
+  // Actual data from runtime snapshots FIRST
+  for (const [appName, snapshot] of Object.entries(snapshots)) {
+    for (const [scope, packages] of Object.entries(snapshot.shareScope)) {
+      for (const [pkg, versions] of Object.entries(packages)) {
+        pkgScopeMap.set(pkg, scope)
+        for (const [version, item] of Object.entries(versions)) {
+          const entry = getOrCreate(pkg, scope)
+          
+          const from = item.from ?? appName
+          const loaded = Boolean(item.loaded)
+          const eager = Boolean(item.eager)
+          
+          const existing = entry.actual.find(a => a.from === from && a.version === version && a.scope === scope)
+          if (existing) {
+            existing.loaded = existing.loaded || loaded
+            existing.eager = existing.eager || eager
+          } else {
+            entry.actual.push({ from, version, scope, loaded, eager })
+          }
+        }
+      }
+    }
+  }
+
+  // Declared data from manifests SECOND
   for (const [appName, { manifest }] of Object.entries(manifests)) {
     if (!manifest) continue
     for (const shared of manifest.shared) {
-      const entry = getOrCreate(shared.name, 'default')
+      const resolvedScope = pkgScopeMap.get(shared.name) ?? 'default'
+      const entry = getOrCreate(shared.name, resolvedScope)
       entry.declared.push({
         from: appName,
         version: shared.version,
@@ -76,20 +106,24 @@ function buildSharedDeps(
     }
   }
 
-  // Actual data from runtime snapshots
+  // Declared data from runtime snapshots THIRD (for MF 2.0 Rsbuild apps without manifest shared)
   for (const [appName, snapshot] of Object.entries(snapshots)) {
-    for (const [scope, packages] of Object.entries(snapshot.shareScope)) {
-      for (const [pkg, versions] of Object.entries(packages)) {
-        for (const [version, item] of Object.entries(versions)) {
-          const entry = getOrCreate(pkg, scope)
-          entry.actual.push({
-            from: item.from ?? appName,
-            version,
-            scope,
-            loaded: Boolean(item.loaded),
-            eager: Boolean(item.eager),
-          })
-        }
+    if (!snapshot.declaredShared) continue
+    for (const shared of snapshot.declaredShared) {
+      const resolvedScope = pkgScopeMap.get(shared.name) ?? 'default'
+      const entry = getOrCreate(shared.name, resolvedScope)
+      
+      // Prevent duplicates if manifest already provided it
+      const exists = entry.declared.some(d => d.from === shared.from)
+      if (!exists) {
+        entry.declared.push({
+          from: shared.from,
+          version: shared.version,
+          requiredVersion: shared.requiredVersion,
+          singleton: shared.singleton,
+          eager: shared.eager,
+          strictVersion: shared.strictVersion,
+        })
       }
     }
   }

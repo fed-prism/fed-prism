@@ -1,0 +1,43 @@
+{
+  "id": "shell",
+  "name": "shell",
+  "metaData": {
+    "name": "shell",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "0.0.1",
+      "buildName": "@fed-prism-examples/shell"
+    },
+    "remoteEntry": {
+      "name": "",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": ".",
+      "api": "."
+    },
+    "globalName": "shell",
+    "pluginVersion": "0.9.1",
+    "prefetchInterface": false,
+    "publicPath": "/"
+  },
+  "shared": [],
+  "remotes": [
+    {
+      "federationContainerName": "app_a",
+      "moduleName": "UNKNOWN",
+      "alias": "app-a",
+      "entry": "http://localhost:3001/mf-manifest.json"
+    },
+    {
+      "federationContainerName": "app_b",
+      "moduleName": "UNKNOWN",
+      "alias": "app-b",
+      "entry": "http://localhost:3002/mf-manifest.json"
+    }
+  ],
+  "exposes": []
+}

@@ -4,6 +4,21 @@
  */
 import React from 'react'
 import chunk from 'lodash/chunk'
+import { format } from 'date-fns'
+import axios from 'axios'
+import dayjs from 'dayjs'
+import clsx from 'clsx'
+import { v4 } from 'uuid'
+import * as R from 'ramda'
+import { createMachine } from 'xstate'
+import styled from 'styled-components'
+import { makeAutoObservable } from 'mobx'
+import * as d3 from 'd3'
+// Defeat aggressive tree-shaking
+// @ts-ignore
+window.__keep_app_b = window.__keep_app_b || []
+// @ts-ignore
+window.__keep_app_b.push(axios, dayjs, clsx, v4, R, createMachine, styled, makeAutoObservable, d3)
 
 const ITEMS = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta']
 
@@ -22,7 +37,7 @@ export default function Widget() {
       }}
     >
       <div style={{ marginBottom: 12, color: '#06b6d4', fontWeight: 600 }}>
-        Widget ↗ app-b (Webpack 5 · lodash 4.17.20)
+        Widget ↗ app-b (Webpack 5 · lodash 4.17.20 · {format(new Date(), 'yyyy')})
       </div>
       <div>
         {rows.map((row, i) => (

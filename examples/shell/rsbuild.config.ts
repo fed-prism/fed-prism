@@ -15,6 +15,14 @@ export default defineConfig({
       shared: {
         react: { singleton: true, eager: true, requiredVersion: '^18.0.0' },
         'react-dom': { singleton: true, eager: true, requiredVersion: '^18.0.0' },
+        zustand: { singleton: true, strictVersion: true, requiredVersion: '^5.0.0' },
+        'framer-motion': { singleton: true, strictVersion: true, requiredVersion: '11.0.0' },
+        zod: { singleton: true, requiredVersion: '~3.20.0' },
+        nanoid: { singleton: true, requiredVersion: '^5.0.0' },
+        '@tanstack/react-query': { singleton: true, strictVersion: true, requiredVersion: '^5.20.0' },
+        'react-router-dom': { singleton: true, requiredVersion: '6.22.3' },
+        redux: { singleton: true, shareScope: 'state', requiredVersion: '^5.0.1' },
+        clsx: { singleton: true, shareScope: 'utils', requiredVersion: '^2.1.0' },
       },
       runtimePlugins: [
         // Path to a file that exports the plugin instance

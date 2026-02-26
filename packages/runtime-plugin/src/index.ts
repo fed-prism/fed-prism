@@ -25,8 +25,9 @@ interface MfRuntimePlugin {
 
 interface FederationGlobal {
   SHARE?: Record<string, Record<string, Record<string, unknown>>>
+  __SHARE__?: Record<string, Record<string, Record<string, unknown>>>
   moduleInfo?: Record<string, unknown>
-  __INSTANCES__?: Array<{ name: string }>
+  __INSTANCES__?: Array<{ name: string; options?: { shared?: Record<string, any[]> } }>
 }
 
 declare global {
@@ -55,6 +56,33 @@ function isProduction(): boolean {
   } catch {
     return false
   }
+}
+
+function getShareScope(fed: FederationGlobal, instanceName: string): FederationSnapshot['shareScope'] {
+  if (fed.__SHARE__) {
+    // MF 2.0: __SHARE__[instanceId][scope][pkg][version]
+    // We must merge ALL instances (host + remotes) because plugins only run
+    // in the host context initially, and the host's __SHARE__ contains all loaded remote scopes.
+    const merged: Record<string, any> = {}
+    for (const data of Object.values(fed.__SHARE__)) {
+      if (!data || typeof data !== 'object') continue
+      for (const [scope, pkgs] of Object.entries(data)) {
+        if (!merged[scope]) merged[scope] = {}
+        for (const [pkg, versions] of Object.entries(pkgs as any)) {
+          if (!merged[scope][pkg]) merged[scope][pkg] = {}
+          Object.assign(merged[scope][pkg], versions)
+        }
+      }
+    }
+    return merged
+  }
+  
+  if (fed.SHARE) {
+    // MF 1.0: SHARE[scope][pkg][version]
+    return fed.SHARE as FederationSnapshot['shareScope']
+  }
+  
+  return {}
 }
 
 function readFederationGlobal(
@@ -98,11 +126,33 @@ function readFederationGlobal(
     })
   }
 
+  const declaredShared: FederationSnapshot['declaredShared'] = []
+  for (const instance of fed.__INSTANCES__ ?? []) {
+    const sharedObj = instance.options?.shared
+    if (!sharedObj || typeof sharedObj !== 'object') continue
+    for (const [pkgName, wrappers] of Object.entries(sharedObj)) {
+      if (!Array.isArray(wrappers)) continue
+      for (const w of wrappers) {
+        const conf = w.shareConfig || {}
+        declaredShared.push({
+          from: instance.name,
+          name: pkgName,
+          version: w.version || '',
+          requiredVersion: conf.requiredVersion || '',
+          singleton: !!conf.singleton,
+          eager: !!conf.eager,
+          strictVersion: !!conf.strictVersion,
+        })
+      }
+    }
+  }
+
   return {
-    shareScope: (fed.SHARE ?? {}) as FederationSnapshot['shareScope'],
+    shareScope: getShareScope(fed, instanceName),
     moduleInfo: rawModuleInfo as unknown as FederationSnapshot['moduleInfo'],
     instances: (fed.__INSTANCES__ ?? []).map((i) => i.name),
     remotes,
+    declaredShared,
   }
 }
 

@@ -4,6 +4,25 @@
  * This import is what creates the implicit shell → app-a → app-c → app-b chain.
  */
 import React, { useEffect, useState } from 'react'
+import { format } from 'date-fns'
+import { Observable } from 'rxjs'
+import axios from 'axios'
+import { z } from 'zod'
+import clsx from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import { v4 } from 'uuid'
+import { nanoid } from 'nanoid'
+import { buildSchema } from 'graphql'
+import ChartJS from 'chart.js/auto'
+import * as THREE from 'three'
+import * as d3 from 'd3'
+
+// @ts-ignore
+window.__keep_app_c = window.__keep_app_c || []
+// @ts-ignore
+window.__keep_app_c.push(axios, z, clsx, twMerge, v4, nanoid, buildSchema, ChartJS, THREE, d3)
+
+const dummyObs = new Observable()
 
 // Dynamic import of DataService from app-b to avoid hard bundling at startup
 type DataPoint = { label: string; value: number }
@@ -33,7 +52,7 @@ export default function Chart() {
       }}
     >
       <div style={{ fontSize: 11, color: '#8b5cf6', marginBottom: 12, fontFamily: 'monospace' }}>
-        Chart ↗ app-c · data via app-b/DataService
+        Chart ↗ app-c · data via app-b/DataService · {format(new Date(), 'MMM yyyy')}
       </div>
       {error ? (
         <p style={{ color: '#f87171', fontSize: 12 }}>{error} — start app-b on port 3002</p>

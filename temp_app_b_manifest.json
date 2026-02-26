@@ -1,0 +1,312 @@
+{
+  "id": "app_b",
+  "name": "app_b",
+  "metaData": {
+    "name": "app_b",
+    "type": "app",
+    "buildInfo": {
+      "buildVersion": "0.0.1",
+      "buildName": "@fed-prism-examples/app-b"
+    },
+    "remoteEntry": {
+      "name": "remoteEntry.js",
+      "path": "",
+      "type": "global"
+    },
+    "types": {
+      "path": "",
+      "name": "",
+      "zip": "@mf-types.zip",
+      "api": "@mf-types.d.ts"
+    },
+    "globalName": "app_b",
+    "pluginVersion": "0.9.1",
+    "prefetchInterface": false,
+    "publicPath": "auto"
+  },
+  "shared": [
+    {
+      "id": "app_b:axios",
+      "name": "axios",
+      "version": "1.13.5",
+      "singleton": true,
+      "requiredVersion": "~1.6.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_axios_1_13_5_node_modules_axios_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:date-fns",
+      "name": "date-fns",
+      "version": "3.6.0",
+      "singleton": false,
+      "requiredVersion": "^3.0.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_date-fns_3_6_0_node_modules_date-fns_index_mjs.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:dayjs",
+      "name": "dayjs",
+      "version": "1.11.19",
+      "singleton": false,
+      "requiredVersion": "1.11.10",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "node_modules_pnpm_dayjs_1_11_19_node_modules_dayjs_dayjs_min_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:ramda",
+      "name": "ramda",
+      "version": "0.32.0",
+      "singleton": false,
+      "requiredVersion": "^0.29.1",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_ramda_0_32_0_node_modules_ramda_es_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:react-dom",
+      "name": "react-dom",
+      "version": "18.3.1",
+      "singleton": true,
+      "requiredVersion": "^18.0.0",
+      "assets": {
+        "js": {
+          "async": [
+            "vendors-node_modules_pnpm_react_18_3_1_node_modules_react_index_js.js"
+          ],
+          "sync": [
+            "vendors-node_modules_pnpm_react-dom_18_3_1_react_18_3_1_node_modules_react-dom_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:react",
+      "name": "react",
+      "version": "18.3.1",
+      "singleton": true,
+      "requiredVersion": "^18.0.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_react_18_3_1_node_modules_react_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:styled-components",
+      "name": "styled-components",
+      "version": "6.3.11",
+      "singleton": true,
+      "requiredVersion": "^6.1.8",
+      "assets": {
+        "js": {
+          "async": [
+            "vendors-node_modules_pnpm_react_18_3_1_node_modules_react_index_js.js"
+          ],
+          "sync": [
+            "vendors-node_modules_pnpm_styled-components_6_3_11_re_e3e514eb548d0314d3a198ffaaa0f2dd_node_m-cf2b62.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:uuid",
+      "name": "uuid",
+      "version": "13.0.0",
+      "singleton": false,
+      "requiredVersion": "^9.0.1",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_uuid_13_0_0_node_modules_uuid_dist_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:mobx",
+      "name": "mobx",
+      "version": "6.15.0",
+      "singleton": true,
+      "requiredVersion": "^6.12.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_mobx_6_15_0_node_modules_mobx_dist_mobx_esm_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:xstate",
+      "name": "xstate",
+      "version": "5.28.0",
+      "singleton": true,
+      "requiredVersion": "^5.6.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_xstate_5_28_0_node_modules_xstate_dist_xstate_development_esm_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:clsx",
+      "name": "clsx",
+      "version": "2.1.1",
+      "singleton": true,
+      "requiredVersion": "^2.1.0",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "node_modules_pnpm_clsx_2_1_1_node_modules_clsx_dist_clsx_mjs.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    },
+    {
+      "id": "app_b:d3",
+      "name": "d3",
+      "version": "7.9.0",
+      "singleton": true,
+      "requiredVersion": "^7.8.5",
+      "assets": {
+        "js": {
+          "async": [],
+          "sync": [
+            "vendors-node_modules_pnpm_d3_7_9_0_node_modules_d3_src_index_js.js"
+          ]
+        },
+        "css": {
+          "async": [],
+          "sync": []
+        }
+      }
+    }
+  ],
+  "remotes": [],
+  "exposes": [
+    {
+      "id": "app_b:Widget",
+      "name": "Widget",
+      "assets": {
+        "js": {
+          "sync": [
+            "vendors-node_modules_pnpm_react_18_3_1_node_modules_react_jsx-runtime_js.js",
+            "vendors-node_modules_pnpm_lodash_4_17_20_node_modules_lodash_chunk_js.js",
+            "__federation_expose_Widget.js"
+          ],
+          "async": [
+            "vendors-node_modules_pnpm_react_18_3_1_node_modules_react_index_js.js",
+            "vendors-node_modules_pnpm_date-fns_3_6_0_node_modules_date-fns_index_mjs.js",
+            "vendors-node_modules_pnpm_axios_1_13_5_node_modules_axios_index_js.js",
+            "node_modules_pnpm_dayjs_1_11_19_node_modules_dayjs_dayjs_min_js.js",
+            "node_modules_pnpm_clsx_2_1_1_node_modules_clsx_dist_clsx_mjs.js",
+            "vendors-node_modules_pnpm_uuid_13_0_0_node_modules_uuid_dist_index_js.js",
+            "vendors-node_modules_pnpm_ramda_0_32_0_node_modules_ramda_es_index_js.js",
+            "vendors-node_modules_pnpm_xstate_5_28_0_node_modules_xstate_dist_xstate_development_esm_js.js",
+            "vendors-node_modules_pnpm_styled-components_6_3_11_re_e3e514eb548d0314d3a198ffaaa0f2dd_node_m-cf2b62.js",
+            "vendors-node_modules_pnpm_mobx_6_15_0_node_modules_mobx_dist_mobx_esm_js.js",
+            "vendors-node_modules_pnpm_d3_7_9_0_node_modules_d3_src_index_js.js"
+          ]
+        },
+        "css": {
+          "sync": [],
+          "async": []
+        }
+      },
+      "path": "./Widget"
+    },
+    {
+      "id": "app_b:DataService",
+      "name": "DataService",
+      "assets": {
+        "js": {
+          "sync": [
+            "__federation_expose_DataService.js"
+          ],
+          "async": []
+        },
+        "css": {
+          "sync": [],
+          "async": []
+        }
+      },
+      "path": "./DataService"
+    }
+  ]
+}
