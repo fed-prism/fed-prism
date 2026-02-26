@@ -7,11 +7,14 @@ import { QueryClient } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import { createStore } from 'redux'
 import clsx from 'clsx'
+import ms from 'ms'
+import colorName from 'color-name'
+import * as cookie from 'cookie'
 // Defeat aggressive tree-shaking
 // @ts-ignore
 window.__keep_shell = window.__keep_shell || []
 // @ts-ignore
-window.__keep_shell.push(motion, z, nanoid, QueryClient, BrowserRouter, createStore, clsx)
+window.__keep_shell.push(motion, z, nanoid, QueryClient, BrowserRouter, createStore, clsx, ms, colorName, cookie)
 
 const useStore = create(() => ({ initialized: true }))
 

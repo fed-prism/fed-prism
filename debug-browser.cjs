@@ -21,8 +21,21 @@ async function run() {
     await page.waitForTimeout(3000)
     
     const shape = await page.evaluate(() => {
-      const instance = window.__FEDERATION__.__INSTANCES__.find(i => i.name === 'app_a')
-      return instance ? instance.options.shared.graphql[0].shareConfig : null
+      return window.__FEDERATION__.__INSTANCES__.map(i => {
+        const info = {}
+        const wrappers = i.options?.shared?.['color-name']
+        if (wrappers && wrappers.length > 0) {
+          info.name = i.name
+          info.colorNameScopeArray = wrappers[0].scope
+          info.colorNameWrapper = {
+            version: wrappers[0].version,
+            shareScope: wrappers[0].shareScope,
+            scope: wrappers[0].scope,
+            ...wrappers[0]
+          }
+        }
+        return info
+      }).filter(i => i.name)
     })
     console.log('[Browser log] moduleInfo.shared:', shape)
   } catch (err) {

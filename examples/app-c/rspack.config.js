@@ -57,6 +57,7 @@ module.exports = {
         'chart.js': { singleton: false, requiredVersion: '^4.4.1' },
         three: { singleton: true, strictVersion: true, shareScope: '3d', requiredVersion: '0.160.0' },
         d3: { singleton: true, shareScope: 'viz', requiredVersion: '^7.8.5' },
+        cookie: { singleton: true, strictVersion: true, shareScope: 'auth-scope', requiredVersion: '1.1.1' },
       },
       runtimePlugins: [require.resolve('./src/fedPrismPluginEntry.ts')],
     }),

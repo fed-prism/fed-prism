@@ -33,6 +33,7 @@ export default defineConfig({
         'styled-components': { singleton: true, requiredVersion: '^6.1.8' },
         validator: { singleton: false, requiredVersion: '^13.11.0' },
         redux: { singleton: true, shareScope: 'state', requiredVersion: '^5.0.1' },
+        'color-name': { singleton: true, shareScope: 'legacy-ui', requiredVersion: '^1.1.4' },
       },
       runtimePlugins: [
         require.resolve('./src/fedPrismPluginEntry.ts'),

@@ -137,6 +137,7 @@ export interface SharedDeclared {
   singleton: boolean
   eager: boolean
   strictVersion: boolean
+  scope?: string
 }
 
 export interface RuntimeSharedDeclared extends SharedDeclared {

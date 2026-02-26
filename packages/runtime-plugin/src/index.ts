@@ -88,6 +88,7 @@ function getShareScope(fed: FederationGlobal, instanceName: string): FederationS
 function readFederationGlobal(
   instanceName: string,
   staticRemoteNames: Set<string>,
+  hostDeclaredShared: FederationSnapshot['declaredShared'] = [],
 ): Partial<FederationSnapshot> {
   if (typeof globalThis.__FEDERATION__ === 'undefined') {
     return {}
@@ -126,7 +127,7 @@ function readFederationGlobal(
     })
   }
 
-  const declaredShared: FederationSnapshot['declaredShared'] = []
+  const declaredShared: FederationSnapshot['declaredShared'] = [...(hostDeclaredShared || [])]
   for (const instance of fed.__INSTANCES__ ?? []) {
     const sharedObj = instance.options?.shared
     if (!sharedObj || typeof sharedObj !== 'object') continue
@@ -142,6 +143,7 @@ function readFederationGlobal(
           singleton: !!conf.singleton,
           eager: !!conf.eager,
           strictVersion: !!conf.strictVersion,
+          scope: (Array.isArray(w.scope) ? w.scope[0] : w.scope) || 'default',
         })
       }
     }
@@ -263,6 +265,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
   socket.connect()
 
   let instanceName = 'unknown'
+  const hostDeclaredShared: FederationSnapshot['declaredShared'] = []
 
   // Track which remotes are present at init time — these are statically loaded.
   // Any remote that appears in a later afterResolve is classified as 'async'.
@@ -270,7 +273,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
   let initDone = false
 
   const sendSnapshot = debounce((trigger: HookName) => {
-    const data = readFederationGlobal(instanceName, staticRemoteNames)
+    const data = readFederationGlobal(instanceName, staticRemoteNames, hostDeclaredShared)
     const snapshot: FederationSnapshot = {
       instanceName,
       timestamp: Date.now(),
@@ -279,6 +282,7 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
       moduleInfo: data.moduleInfo ?? {},
       instances: data.instances ?? [],
       remotes: data.remotes ?? [],
+      declaredShared: data.declaredShared ?? [],
     }
     socket.send(snapshot)
   }, debounceMs)
@@ -289,10 +293,33 @@ export function fedPrismPlugin(options: FedPrismPluginOptions = {}): MfRuntimePl
     name: 'fed-prism-plugin',
 
     init(args: unknown) {
-      const typedArgs = args as { options?: { name?: string } } | undefined
+      const typedArgs = args as { options?: { name?: string; shared?: Record<string, any[]> } } | undefined
       if (typedArgs?.options?.name) {
         instanceName = typedArgs.options.name
       }
+      
+      const sharedObj = typedArgs?.options?.shared
+      if (sharedObj && typeof sharedObj === 'object') {
+        for (const [pkgName, wrappers] of Object.entries(sharedObj)) {
+          if (!Array.isArray(wrappers)) continue
+          for (const w of wrappers) {
+            const conf = w.shareConfig || {}
+            if (!hostDeclaredShared.some(d => d.name === pkgName && d.version === (w.version || ''))) {
+              hostDeclaredShared.push({
+                from: instanceName,
+                name: pkgName,
+                version: w.version || '',
+                requiredVersion: conf.requiredVersion || '',
+                singleton: !!conf.singleton,
+                eager: !!conf.eager,
+                strictVersion: !!conf.strictVersion,
+                scope: (Array.isArray(w.scope) ? w.scope[0] : w.scope) || 'default',
+              })
+            }
+          }
+        }
+      }
+
       sendSnapshot('init')
       // After init, snapshot whatever remotes are now known — mark them static
       setTimeout(() => {

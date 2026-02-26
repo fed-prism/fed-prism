@@ -60,8 +60,8 @@ function buildSharedDeps(
     return scopeMap.get(scope)!
   }
 
-  // Map pkg name to the scope it appeared in at runtime. Default to 'default' if never seen.
-  const pkgScopeMap = new Map<string, string>()
+  // Map pkg name to a Set of scopes it appeared in at runtime. Default to 'default' if never seen.
+  const pkgScopeMap = new Map<string, Set<string>>()
 
   const seenActuals = new Set<string>()
 
@@ -69,7 +69,8 @@ function buildSharedDeps(
   for (const [appName, snapshot] of Object.entries(snapshots)) {
     for (const [scope, packages] of Object.entries(snapshot.shareScope)) {
       for (const [pkg, versions] of Object.entries(packages)) {
-        pkgScopeMap.set(pkg, scope)
+        if (!pkgScopeMap.has(pkg)) pkgScopeMap.set(pkg, new Set())
+        pkgScopeMap.get(pkg)!.add(scope)
         for (const [version, item] of Object.entries(versions)) {
           const entry = getOrCreate(pkg, scope)
           
@@ -89,31 +90,13 @@ function buildSharedDeps(
     }
   }
 
-  // Declared data from manifests SECOND
-  for (const [appName, { manifest }] of Object.entries(manifests)) {
-    if (!manifest) continue
-    for (const shared of manifest.shared) {
-      const resolvedScope = pkgScopeMap.get(shared.name) ?? 'default'
-      const entry = getOrCreate(shared.name, resolvedScope)
-      entry.declared.push({
-        from: appName,
-        version: shared.version,
-        requiredVersion: shared.requiredVersion,
-        singleton: shared.singleton,
-        eager: shared.eager,
-        strictVersion: shared.strictVersion,
-      })
-    }
-  }
-
-  // Declared data from runtime snapshots THIRD (for MF 2.0 Rsbuild apps without manifest shared)
+  // Declared data from runtime snapshots SECOND (Primary source of truth for exact scopes)
   for (const [appName, snapshot] of Object.entries(snapshots)) {
     if (!snapshot.declaredShared) continue
     for (const shared of snapshot.declaredShared) {
-      const resolvedScope = pkgScopeMap.get(shared.name) ?? 'default'
-      const entry = getOrCreate(shared.name, resolvedScope)
+      const explicitScope = shared.scope || 'default'
+      const entry = getOrCreate(shared.name, explicitScope)
       
-      // Prevent duplicates if manifest already provided it
       const exists = entry.declared.some(d => d.from === shared.from)
       if (!exists) {
         entry.declared.push({
@@ -124,6 +107,41 @@ function buildSharedDeps(
           eager: shared.eager,
           strictVersion: shared.strictVersion,
         })
+      }
+    }
+  }
+
+  // Declared data from manifests THIRD (Fallback for legacy apps without runtime plugin scoping)
+  for (const [appName, { manifest }] of Object.entries(manifests)) {
+    if (!manifest) continue
+    
+    // Skip manifest fallback completely if the app already provided perfectly scoped declarations at runtime
+    const snapshot = snapshots[appName]
+    if (snapshot?.declaredShared && snapshot.declaredShared.length > 0) {
+      continue
+    }
+
+    for (const shared of manifest.shared) {
+      // Manifests lack explicit shareScope. We fall back to whatever runtime scopes the package appeared in.
+      // If none, default to 'default'.
+      const runtimeScopes = pkgScopeMap.get(shared.name)
+      const scopesToAssign = runtimeScopes && runtimeScopes.size > 0 ? Array.from(runtimeScopes) : ['default']
+
+      for (const resolvedScope of scopesToAssign) {
+        const entry = getOrCreate(shared.name, resolvedScope)
+        
+        // Prevent duplicates if runtime snapshot already provided it
+        const exists = entry.declared.some(d => d.from === appName)
+        if (!exists) {
+          entry.declared.push({
+            from: appName,
+            version: shared.version,
+            requiredVersion: shared.requiredVersion,
+            singleton: shared.singleton,
+            eager: shared.eager,
+            strictVersion: shared.strictVersion,
+          })
+        }
       }
     }
   }

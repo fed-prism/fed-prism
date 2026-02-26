@@ -50,6 +50,7 @@ module.exports = {
         'styled-components': { singleton: true, requiredVersion: '^6.1.8' },
         mobx: { singleton: true, shareScope: 'state', requiredVersion: '^6.12.0' },
         d3: { singleton: true, shareScope: 'viz', requiredVersion: '^7.8.5' },
+        ms: { singleton: true, shareScope: 'widget-time', requiredVersion: '^2.1.3' },
       },
       runtimePlugins: [require.resolve('./src/fedPrismPluginEntry.ts')],
     }),

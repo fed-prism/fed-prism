@@ -23,6 +23,9 @@ export default defineConfig({
         'react-router-dom': { singleton: true, requiredVersion: '6.22.3' },
         redux: { singleton: true, shareScope: 'state', requiredVersion: '^5.0.1' },
         clsx: { singleton: true, shareScope: 'utils', requiredVersion: '^2.1.0' },
+        ms: { singleton: true, shareScope: 'core-time', requiredVersion: '^2.1.2' },
+        'color-name': { singleton: true, shareScope: 'modern-ui', requiredVersion: '^2.0.0' },
+        cookie: { singleton: true, strictVersion: true, shareScope: 'tracking-scope', requiredVersion: '1.1.1' },
       },
       runtimePlugins: [
         // Path to a file that exports the plugin instance

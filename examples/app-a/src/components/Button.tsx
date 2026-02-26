@@ -16,11 +16,12 @@ import { BrowserRouter } from 'react-router-dom'
 import styled from 'styled-components'
 import isEmail from 'validator/lib/isEmail'
 import { createStore } from 'redux'
+import colorName from 'color-name'
 // Defeat aggressive tree-shaking
 // @ts-ignore
 window.__keep_app_a = window.__keep_app_a || []
 // @ts-ignore
-window.__keep_app_a.push(motion, dayjs, clsx, twMerge, createMachine, buildSchema, QueryClient, BrowserRouter, styled, isEmail, createStore)
+window.__keep_app_a.push(motion, dayjs, clsx, twMerge, createMachine, buildSchema, QueryClient, BrowserRouter, styled, isEmail, createStore, colorName)
 
 const useStore = create(() => ({ initialized: true }))
 const dummyObs = new Observable()

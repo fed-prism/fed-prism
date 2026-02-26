@@ -16,11 +16,12 @@ import { buildSchema } from 'graphql'
 import ChartJS from 'chart.js/auto'
 import * as THREE from 'three'
 import * as d3 from 'd3'
+import * as cookie from 'cookie'
 
 // @ts-ignore
 window.__keep_app_c = window.__keep_app_c || []
 // @ts-ignore
-window.__keep_app_c.push(axios, z, clsx, twMerge, v4, nanoid, buildSchema, ChartJS, THREE, d3)
+window.__keep_app_c.push(axios, z, clsx, twMerge, v4, nanoid, buildSchema, ChartJS, THREE, d3, cookie)
 
 const dummyObs = new Observable()
 

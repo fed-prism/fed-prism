@@ -35,6 +35,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      color-name:
+        specifier: ^2.1.0
+        version: 2.1.0
+      cookie:
+        specifier: ^1.1.1
+        version: 1.1.1
       dayjs:
         specifier: ^1.11.19
         version: 1.11.19
@@ -47,6 +53,9 @@ importers:
       lodash:
         specifier: 4.17.21
         version: 4.17.21
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -90,9 +99,15 @@ importers:
       '@rsbuild/plugin-react':
         specifier: ^1.1.3
         version: 1.4.5(@rsbuild/core@1.7.3)
+      '@types/cookie':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/lodash':
         specifier: ^4.17.15
         version: 4.17.23
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/react':
         specifier: ^18.3.18
         version: 18.3.28
@@ -114,6 +129,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      color-name:
+        specifier: ^2.1.0
+        version: 2.1.0
+      cookie:
+        specifier: ^1.1.1
+        version: 1.1.1
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -129,6 +150,9 @@ importers:
       mobx:
         specifier: ^6.15.0
         version: 6.15.0
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       ramda:
         specifier: ^0.32.0
         version: 0.32.0
@@ -154,12 +178,18 @@ importers:
       '@module-federation/enhanced':
         specifier: ^0.9.0
         version: 0.9.1(@rspack/core@1.7.6(@swc/helpers@0.5.18))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.9.3)(webpack@5.105.2)
+      '@types/cookie':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
       '@types/lodash':
         specifier: ^4.17.15
         version: 4.17.23
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/ramda':
         specifier: ^0.31.1
         version: 0.31.1
@@ -199,6 +229,12 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      color-name:
+        specifier: ^2.1.0
+        version: 2.1.0
+      cookie:
+        specifier: ^1.1.1
+        version: 1.1.1
       d3:
         specifier: ^7.9.0
         version: 7.9.0
@@ -208,6 +244,9 @@ importers:
       graphql:
         specifier: ^16.13.0
         version: 16.13.0
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
@@ -245,9 +284,15 @@ importers:
       '@rspack/core':
         specifier: ^1.3.7
         version: 1.7.6(@swc/helpers@0.5.18)
+      '@types/cookie':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@types/d3':
         specifier: ^7.4.3
         version: 7.4.3
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/react':
         specifier: ^18.3.18
         version: 18.3.28
@@ -269,9 +314,18 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      color-name:
+        specifier: ^2.1.0
+        version: 2.1.0
+      cookie:
+        specifier: ^1.1.1
+        version: 1.1.1
       framer-motion:
         specifier: 11.0.0
         version: 11.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      ms:
+        specifier: ^2.1.3
+        version: 2.1.3
       nanoid:
         specifier: ^5.1.6
         version: 5.1.6
@@ -306,6 +360,12 @@ importers:
       '@rsbuild/plugin-react':
         specifier: ^1.1.3
         version: 1.4.5(@rsbuild/core@1.7.3)
+      '@types/cookie':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/ms':
+        specifier: ^2.1.0
+        version: 2.1.0
       '@types/react':
         specifier: ^18.3.18
         version: 18.3.28
@@ -1386,6 +1446,10 @@ packages:
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
+  '@types/cookie@1.0.0':
+    resolution: {integrity: sha512-mGFXbkDQJ6kAXByHS7QAggRXgols0mAdP4MuXgloGY1tXokvzaFFM4SMqWvf7AH0oafI7zlFJwoGWzmhDqTZ9w==}
+    deprecated: This is a stub types definition. cookie provides its own type definitions, so you do not need this installed.
+
   '@types/d3-array@3.2.2':
     resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
 
@@ -1514,6 +1578,9 @@ packages:
 
   '@types/mime@1.3.5':
     resolution: {integrity: sha512-/pyBZWSLD2n0dcHE3hq8s8ZvcETHtEuF+3E7XVt0Ig2nvsVQXdghHVcEkIWjy9A0wKfTn97a/PSDYohKIlnP/w==}
+
+  '@types/ms@2.1.0':
+    resolution: {integrity: sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA==}
 
   '@types/node-forge@1.3.14':
     resolution: {integrity: sha512-mhVF2BnD4BO+jtOp7z1CdzaK4mbuK0LLQYAvdOLqHTavxFNq4zA1EmYkpnFjP8HOUzedfQkRnp0E2ulSAYSzAw==}
@@ -1933,6 +2000,10 @@ packages:
 
   color-name@1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
+
+  color-name@2.1.0:
+    resolution: {integrity: sha512-1bPaDNFm0axzE4MEAzKPuqKWeRaT43U/hyxKPBdqTfmPF+d6n7FSoTFxLVULUJOmiLp01KjhIPPH+HrXZJN4Rg==}
+    engines: {node: '>=12.20'}
 
   colorette@2.0.20:
     resolution: {integrity: sha512-IfEDxwoWIjkeXL1eXcDiow4UbKjhLdq6/EuSVR9GMN7KVH3r9gQ83e73hsz1Nd1T3ijd5xv1wcWRYO+D6kCI2w==}
@@ -5312,6 +5383,10 @@ snapshots:
     dependencies:
       '@types/node': 22.19.11
 
+  '@types/cookie@1.0.0':
+    dependencies:
+      cookie: 1.1.1
+
   '@types/d3-array@3.2.2': {}
 
   '@types/d3-axis@3.0.6':
@@ -5470,6 +5545,8 @@ snapshots:
   '@types/lodash@4.17.23': {}
 
   '@types/mime@1.3.5': {}
+
+  '@types/ms@2.1.0': {}
 
   '@types/node-forge@1.3.14':
     dependencies:
@@ -5932,6 +6009,8 @@ snapshots:
       color-name: 1.1.4
 
   color-name@1.1.4: {}
+
+  color-name@2.1.0: {}
 
   colorette@2.0.20: {}
 

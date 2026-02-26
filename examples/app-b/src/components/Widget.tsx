@@ -14,11 +14,12 @@ import { createMachine } from 'xstate'
 import styled from 'styled-components'
 import { makeAutoObservable } from 'mobx'
 import * as d3 from 'd3'
+import ms from 'ms'
 // Defeat aggressive tree-shaking
 // @ts-ignore
 window.__keep_app_b = window.__keep_app_b || []
 // @ts-ignore
-window.__keep_app_b.push(axios, dayjs, clsx, v4, R, createMachine, styled, makeAutoObservable, d3)
+window.__keep_app_b.push(axios, dayjs, clsx, v4, R, createMachine, styled, makeAutoObservable, d3, ms)
 
 const ITEMS = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta']
 
